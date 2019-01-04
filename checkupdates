@@ -1,0 +1,34 @@
+#!/bin/bash
+# Requires https://github.com/pantheon-systems/terminus-composer-plugin
+SITES=$(terminus site:list --field=name --format=list | sort | xargs)
+for SITE in $SITES; do
+  LIVESITE=$SITE.live
+  INITIALIZED=$(terminus env:info $LIVESITE --field=initialized)
+  if [ "$INITIALIZED" == "true" ]; then
+    DOMAIN=$(terminus env:info $LIVESITE --field=domain)
+    FRAMEWORK=$(terminus site:info $SITE --field=framework)
+    echo --------------------------------------------------------------------------------
+    echo https://$DOMAIN: $FRAMEWORK
+    echo --------------------------------------------------------------------------------
+    case $FRAMEWORK in
+      drupal)
+        terminus drush $LIVESITE up -- -n
+        ;;
+      drupal8)
+        DRUSH=$(terminus drush $LIVESITE version | cut -d':' -f2 | cut -d'.' -f1 | xargs)
+        if [ $DRUSH == 9 ]; then
+          terminus drush $LIVESITE pm:security
+          terminus composer $LIVESITE outdated | grep ^drupal/
+        else
+          terminus drush $LIVESITE up -- -n
+        fi
+        ;;
+      wordpress)
+        terminus wp $LIVESITE core -- check-update
+        terminus wp $LIVESITE plugin -- update --all --dry-run
+        ;;
+    esac
+    echo
+    echo
+  fi
+done
