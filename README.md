@@ -6,8 +6,8 @@ Bash shell script to check core and contrib module/plugin updates for all availa
 
 ## Prerequisites:
 - [Terminus](https://github.com/pantheon-systems/terminus)
-- [Terminus Composer Plugin](https://github.com/pantheon-systems/terminus-composer-plugin) <sup>*</sup>
-<sup>*</sup>Only needed for Composer managed Drupal 8 sites using Drush 9
+- [Terminus Composer Plugin](https://github.com/pantheon-systems/terminus-composer-plugin) -
+ _Only needed for Composer managed Drupal 8 sites using Drush 9_
 
 ## Install:
 ```
