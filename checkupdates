@@ -3,8 +3,8 @@
 SITES=$(terminus site:list --field=name --format=list | sort | xargs)
 for SITE in $SITES; do
   LIVESITE=$SITE.live
-  INITIALIZED=$(terminus env:info $LIVESITE --field=initialized)
-  if [ "$INITIALIZED" == "true" ]; then
+  INITIALIZED=$(terminus env:info $LIVESITE --field=initialized 2> /dev/null)
+  if [ $INITIALIZED ]; then
     DOMAIN=$(terminus env:info $LIVESITE --field=domain)
     FRAMEWORK=$(terminus site:info $SITE --field=framework)
     echo --------------------------------------------------------------------------------
@@ -12,15 +12,18 @@ for SITE in $SITES; do
     echo --------------------------------------------------------------------------------
     case $FRAMEWORK in
       drupal)
-        terminus drush $LIVESITE up -- -n
+        terminus drush $LIVESITE pm-refresh
+        terminus drush $LIVESITE ups 2>&1 | grep -v ^Checking | grep -v ^\(
         ;;
       drupal8)
         DRUSH=$(terminus drush $LIVESITE version | cut -d':' -f2 | cut -d'.' -f1 | xargs)
         if [ $DRUSH == 9 ]; then
+          terminus drush $LIVESITE pm:refresh
           terminus drush $LIVESITE pm:security
-          terminus composer $LIVESITE outdated | grep ^drupal/
+          terminus composer $LIVESITE outdated ^drupal/*
         else
-          terminus drush $LIVESITE up -- -n
+          terminus drush $LIVESITE pm-refresh
+          terminus drush $LIVESITE ups 2>&1 | grep -v ^Checking | grep -v ^\(
         fi
         ;;
       wordpress)
