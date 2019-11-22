@@ -1,6 +1,6 @@
 #!/bin/bash
 # Requires https://github.com/pantheon-systems/terminus-composer-plugin
-SITES=$(terminus site:list --field=name --format=list | sort | xargs)
+SITES=$(terminus site:list  --format=list)
 for SITE in $SITES; do
   LIVESITE=$SITE.live
   INITIALIZED=$(terminus env:info $LIVESITE --field=initialized 2> /dev/null)
